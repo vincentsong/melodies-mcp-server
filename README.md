@@ -62,7 +62,7 @@ File: `<mcp client>/<mcp configuration>.json`
     "melodies-mcp-server": {
       "disabled": false,
       "command": "npx",
-      "args": ["melodies-mcp-server"],
+      "args": ["-y", "melodies-mcp-server"],
       "env": {
         "MELODIES_API_KEY": "YOUR_API_KEY"
       }
