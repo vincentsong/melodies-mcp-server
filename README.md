@@ -14,7 +14,7 @@ A Model Context Protocol (MCP) server for the Melodies music API, built with Typ
 ### From npm (when published)
 
 ```bash
-npm install -g vincentsong/melodies-mcp-server
+npm install -g melodies-mcp-server
 ```
 
 ### From source
