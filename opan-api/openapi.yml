@@ -1,0 +1,1526 @@
+openapi: 3.1.0
+info:
+  title: Melodie API
+  description: Track API
+  contact:
+    email: api@melod.ie
+  version: 1.0.0
+  x-logo:
+    url: "https://melod.ie/logo.png"
+    altText: Melod.ie
+servers:
+  - url: https://api.melod.ie
+tags:
+  - name: Search
+  - name: Download
+  - name: Collections
+
+paths:
+  /api/v1/collections:
+    get:
+      tags:
+        - Collections
+      summary: Get list of all available collections
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of collections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of collections
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                safename:
+                                  type: string
+                                  description: HTML safe name of the collection
+
+  /api/v1/collections/{collection_safename}:
+    get:
+      tags:
+        - Collections
+      summary: Get tracks from a collection
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/CollectionSafeName"
+      responses:
+        "200":
+          description: Collection tracks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of tracks
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                title:
+                                  type: string
+                                tempo:
+                                  type: integer
+                                description:
+                                  type: string
+                                stream_url:
+                                  type: string
+                                  description: Url for audio stream for preview in player of the main track oversion of this track.
+                                variable_tempo:
+                                  type: boolean
+                                instruments:
+                                  type: array
+                                  items:
+                                    type: string
+                                moods:
+                                  type: array
+                                  items:
+                                    type: string
+                                genres:
+                                  type: array
+                                  items:
+                                    type: string
+                                purposes:
+                                  type: array
+                                  items:
+                                    type: string
+                                composer_id:
+                                  type: integer
+                                artist_name:
+                                  type: string
+                                composers:
+                                  type: array
+                                  items:
+                                    type: string
+                                length:
+                                  type: integer
+                                  description: Length in seconds for main track version.
+                                publisher:
+                                  type: string
+                                isrc:
+                                  type: string
+                                cat_id:
+                                  type: string
+                                relese_year:
+                                  type: string
+                                start_key:
+                                  type: string
+                                end_key:
+                                  type: string
+                                avatar:
+                                  type: string
+                                  description: Url for artist avatar.
+                                track_versions:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                      title:
+                                        type: string
+                                      stream_url:
+                                        type: string
+                                        description: Url for audio preview in player for the specific track version.
+                                      length:
+                                        type: integer
+                                        description: Length in seconds for this specific version.
+                                      download_link:
+                                        type: string
+                                        description: Download link for the specific track version (if available in the API plan).
+
+  /api/v1/tracks/search:
+    get:
+      tags:
+        - Search
+      summary: Perform track search
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: page
+          description: Page of the results you want to retrieve.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sort
+          description: Sorting of results, possible values are "latest", "shuffle" and "featured" (used by default).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          description: General search query for all track data, including but not limited to track titles, composers, genres, moods, and more.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: genreGroup[]
+          description: Array of genre groups to search for.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: genreGroupOperator
+          description: Logic operator for genre groups, can be AND or OR (default, also selected if invalid value is provided). Operator is case sensitive!
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notGenreGroup[]
+          description: Array of genre groups to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: genre[]
+          description: Array of genres to search for.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: genreOperator
+          description: Logic operator for genres, can be AND or OR (default, also selected if invalid value is provided). Operator is case sensitive!
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notGenre[]
+          description: Array of genres to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: mood[]
+          description: Array of moods to search for.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notMood[]
+          description: Array of moods to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: instrument[]
+          description: Array of instruments to search for.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notInstrument[]
+          description: Array of instruments to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: purpose[]
+          description: "Array of purposes to search for. Purposes are like 'TV production genres'."
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notPurpose[]
+          description: Array of purposes to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: variable_tempo
+          description: True/false; Should return tracks with variable tempo or not.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: min_tempo
+          description: Minimal tempo in BPM for searched tracks (must be used together with max_tempo).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: max_tempo
+          description: Maximal tempo in BPM for searched tracks (must be used together with min_tempo).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: min_duration
+          description: Minimal duration in seconds for searched tracks (must be used together with max_duration).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: max_duration
+          description: Maximal duration in seconds for searched tracks (must be used together with min_duration).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: key[]
+          description: Array of desired keys of the tracks.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: per_page
+          description: Amount of results per page (default is 15, max is 200)
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of tracks
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                title:
+                                  type: string
+                                tempo:
+                                  type: integer
+                                description:
+                                  type: string
+                                stream_url:
+                                  type: string
+                                  description: Url for audio stream for preview in player of the main track oversion of this track.
+                                variable_tempo:
+                                  type: boolean
+                                instruments:
+                                  type: array
+                                  items:
+                                    type: string
+                                moods:
+                                  type: array
+                                  items:
+                                    type: string
+                                genres:
+                                  type: array
+                                  items:
+                                    type: string
+                                purposes:
+                                  type: array
+                                  items:
+                                    type: string
+                                composer_id:
+                                  type: integer
+                                artist_name:
+                                  type: string
+                                composers:
+                                  type: array
+                                  items:
+                                    type: string
+                                length:
+                                  type: integer
+                                  description: Length in seconds for main track version.
+                                publisher:
+                                  type: string
+                                isrc:
+                                  type: string
+                                cat_id:
+                                  type: string
+                                relese_year:
+                                  type: string
+                                start_key:
+                                  type: string
+                                end_key:
+                                  type: string
+                                avatar:
+                                  type: string
+                                  description: Url for artist avatar.
+                                track_versions:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                      title:
+                                        type: string
+                                      stream_url:
+                                        type: string
+                                        description: Url for audio preview in player for the specific track version.
+                                      length:
+                                        type: integer
+                                        description: Length in seconds for this specific version.
+                                      download_link:
+                                        type: string
+                                        description: Download link for the specific track version (if available in the API plan).
+                  meta:
+                    type: object
+                    description: Metadata
+                    properties:
+                      obj_count:
+                        type: integer
+                        description: Total count of found objects
+                      page_count:
+                        type: integer
+                        description: Total count of pages
+
+  /api/v1/tracks/simplified_search:
+    get:
+      tags:
+        - Search
+      summary: Perform track search - with main tracks info only
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: page
+          description: Page of the results you want to retrieve.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sort
+          description: Sorting of results, possible values are "latest", "shuffle" and "featured" (used by default).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          description: General search query for all track data, including but not limited to track titles, composers, genres, moods, and more.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: genreGroup[]
+          description: Array of genre groups to search for.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: genreGroupOperator
+          description: Logic operator for genre groups, can be AND or OR (default, also selected if invalid value is provided). Operator is case sensitive!
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notGenreGroup[]
+          description: Array of genre groups to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: genre[]
+          description: Array of genres to search for.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: genreOperator
+          description: Logic operator for genres, can be AND or OR (default, also selected if invalid value is provided). Operator is case sensitive!
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notGenre[]
+          description: Array of genres to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: mood[]
+          description: Array of moods to search for.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notMood[]
+          description: Array of moods to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: instrument[]
+          description: Array of instruments to search for.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notInstrument[]
+          description: Array of instruments to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: purpose[]
+          description: "Array of purposes to search for. Purposes are like 'TV production genres'."
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: notPurpose[]
+          description: Array of purposes to exclude from the search.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: variable_tempo
+          description: True/false; Should return tracks with variable tempo or not.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: min_tempo
+          description: Minimal tempo in BPM for searched tracks (must be used together with max_tempo).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: max_tempo
+          description: Maximal tempo in BPM for searched tracks (must be used together with min_tempo).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: min_duration
+          description: Minimal duration in seconds for searched tracks (must be used together with max_duration).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: max_duration
+          description: Maximal duration in seconds for searched tracks (must be used together with min_duration).
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: key[]
+          description: Array of desired keys of the tracks.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: per_page
+          description: Amount of results per page (default is 15, max is 200)
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of tracks
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                title:
+                                  type: string
+                                tempo:
+                                  type: integer
+                                description:
+                                  type: string
+                                stream_url:
+                                  type: string
+                                  description: Url for audio stream for preview in player of the main track oversion of this track.
+                                variable_tempo:
+                                  type: boolean
+                                instruments:
+                                  type: array
+                                  items:
+                                    type: string
+                                moods:
+                                  type: array
+                                  items:
+                                    type: string
+                                genres:
+                                  type: array
+                                  items:
+                                    type: string
+                                purposes:
+                                  type: array
+                                  items:
+                                    type: string
+                                composer_id:
+                                  type: integer
+                                artist_name:
+                                  type: string
+                                composers:
+                                  type: array
+                                  items:
+                                    type: string
+                                length:
+                                  type: integer
+                                  description: Length in seconds for main track version.
+                                publisher:
+                                  type: string
+                                isrc:
+                                  type: string
+                                cat_id:
+                                  type: string
+                                relese_year:
+                                  type: string
+                                start_key:
+                                  type: string
+                                end_key:
+                                  type: string
+                                avatar:
+                                  type: string
+                                  description: Url for artist avatar.
+                                main_track_versions:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                    title:
+                                      type: string
+                                    stream_url:
+                                      type: string
+                                      description: Url for audio preview in player for the specific track version.
+                                    length:
+                                      type: integer
+                                      description: Length in seconds for this specific version.
+                                    download_link:
+                                      type: string
+                                      description: Download link for the specific track version (if available in the API plan).
+                  meta:
+                    type: object
+                    description: Metadata
+                    properties:
+                      obj_count:
+                        type: integer
+                        description: Total count of found objects
+                      page_count:
+                        type: integer
+                        description: Total count of pages
+
+  /api/v1/tracks/genres:
+    get:
+      tags:
+        - Genres
+      summary: Get list of all current genres
+      responses:
+        "200":
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of genres
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                genre_group_name:
+                                  type: string
+
+  /api/v1/tracks/genre_groups:
+    get:
+      tags:
+        - Genre groups
+      summary: Get list of all current genre groups
+      responses:
+        "200":
+          description: List of genre groups
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of genre groups
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                genre_names:
+                                  type: array
+                                  description: Array of genres
+                                  items:
+                                    oneOf:
+                                      - type: string
+  /api/v1/tracks/moods:
+    get:
+      tags:
+        - Moods
+      summary: Get list of all current moods
+      responses:
+        "200":
+          description: List of moods
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of moods
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+  /api/v1/tracks/instruments:
+    get:
+      tags:
+        - Instruments
+      summary: Get list of all current instruments
+      responses:
+        "200":
+          description: List of instruments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of instruments
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+  /api/v1/tracks/purposes:
+    get:
+      tags:
+        - Purposes
+      summary: Get list of all current purposes
+      responses:
+        "200":
+          description: List of purposes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of purposes
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+
+  /api/v1/tracks/trending:
+    get:
+      tags:
+        - Trending
+      summary: Get 25 most popular tracks currently
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trending tracks results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of tracks
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                title:
+                                  type: string
+                                tempo:
+                                  type: integer
+                                description:
+                                  type: string
+                                stream_url:
+                                  type: string
+                                  description: Url for audio stream for preview in player of the main track oversion of this track.
+                                variable_tempo:
+                                  type: boolean
+                                instruments:
+                                  type: array
+                                  items:
+                                    type: string
+                                moods:
+                                  type: array
+                                  items:
+                                    type: string
+                                genres:
+                                  type: array
+                                  items:
+                                    type: string
+                                purposes:
+                                  type: array
+                                  items:
+                                    type: string
+                                composer_id:
+                                  type: integer
+                                artist_name:
+                                  type: string
+                                composers:
+                                  type: array
+                                  items:
+                                    type: string
+                                length:
+                                  type: integer
+                                  description: Length in seconds for main track version.
+                                publisher:
+                                  type: string
+                                isrc:
+                                  type: string
+                                cat_id:
+                                  type: string
+                                relese_year:
+                                  type: string
+                                start_key:
+                                  type: string
+                                end_key:
+                                  type: string
+                                avatar:
+                                  type: string
+                                  description: Url for artist avatar.
+                                track_versions:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                      title:
+                                        type: string
+                                      stream_url:
+                                        type: string
+                                        description: Url for audio preview in player for the specific track version.
+                                      length:
+                                        type: integer
+                                        description: Length in seconds for this specific version.
+                                      download_link:
+                                        type: string
+                                        description: Download link for the specific track version (if available in the API plan).
+                  meta:
+                    type: object
+                    description: Metadata
+                    properties:
+                      obj_count:
+                        type: integer
+                        description: Total count of found objects
+                      page_count:
+                        type: integer
+                        description: Total count of pages
+
+  /api/v1/tracks/simplified_trending:
+    get:
+      tags:
+        - Trending
+      summary: Get 25 most popular tracks currently - with main tracks info only
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trending tracks results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of tracks
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                title:
+                                  type: string
+                                tempo:
+                                  type: integer
+                                description:
+                                  type: string
+                                stream_url:
+                                  type: string
+                                  description: Url for audio stream for preview in player of the main track oversion of this track.
+                                variable_tempo:
+                                  type: boolean
+                                instruments:
+                                  type: array
+                                  items:
+                                    type: string
+                                moods:
+                                  type: array
+                                  items:
+                                    type: string
+                                genres:
+                                  type: array
+                                  items:
+                                    type: string
+                                purposes:
+                                  type: array
+                                  items:
+                                    type: string
+                                composer_id:
+                                  type: integer
+                                artist_name:
+                                  type: string
+                                composers:
+                                  type: array
+                                  items:
+                                    type: string
+                                length:
+                                  type: integer
+                                  description: Length in seconds for main track version.
+                                publisher:
+                                  type: string
+                                isrc:
+                                  type: string
+                                cat_id:
+                                  type: string
+                                relese_year:
+                                  type: string
+                                start_key:
+                                  type: string
+                                end_key:
+                                  type: string
+                                avatar:
+                                  type: string
+                                  description: Url for artist avatar.
+                                main_track_version:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                    title:
+                                      type: string
+                                    stream_url:
+                                      type: string
+                                      description: Url for audio preview in player for the specific track version.
+                                    length:
+                                      type: integer
+                                      description: Length in seconds for this specific version.
+                                    download_link:
+                                      type: string
+                                      description: Download link for the specific track version (if available in the API plan).
+                  meta:
+                    type: object
+                    description: Metadata
+                    properties:
+                      obj_count:
+                        type: integer
+                        description: Total count of found objects
+                      page_count:
+                        type: integer
+                        description: Total count of pages
+
+  /api/v1/tracks/{track_id}/info:
+    get:
+      tags:
+        - Info
+      summary: Get info about the specific track id
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/TrackId"
+      responses:
+        "200":
+          description: Track info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of tracks
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                title:
+                                  type: string
+                                tempo:
+                                  type: integer
+                                description:
+                                  type: string
+                                stream_url:
+                                  type: string
+                                  description: Url for audio stream for preview in player of the main track oversion of this track.
+                                variable_tempo:
+                                  type: boolean
+                                instruments:
+                                  type: array
+                                  items:
+                                    type: string
+                                moods:
+                                  type: array
+                                  items:
+                                    type: string
+                                genres:
+                                  type: array
+                                  items:
+                                    type: string
+                                purposes:
+                                  type: array
+                                  items:
+                                    type: string
+                                composer_id:
+                                  type: integer
+                                artist_name:
+                                  type: string
+                                composers:
+                                  type: array
+                                  items:
+                                    type: string
+                                length:
+                                  type: integer
+                                  description: Length in seconds for main track version.
+                                publisher:
+                                  type: string
+                                isrc:
+                                  type: string
+                                cat_id:
+                                  type: string
+                                relese_year:
+                                  type: string
+                                start_key:
+                                  type: string
+                                end_key:
+                                  type: string
+                                avatar:
+                                  type: string
+                                  description: Url for artist avatar.
+                                track_versions:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                      title:
+                                        type: string
+                                      stream_url:
+                                        type: string
+                                        description: Url for audio preview in player for the specific track version.
+                                      length:
+                                        type: integer
+                                        description: Length in seconds for this specific version.
+                                      download_link:
+                                        type: string
+                                        description: Download link for the specific track version (if available in the API plan).
+
+  /api/v1/tracks/{track_id}/album_art:
+    get:
+      tags:
+        - Album art
+      summary: Get album art for a track (in different image qualities)
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/TrackId"
+      responses:
+        "200":
+          description: Album art images
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          icon:
+                            type: string
+                            description: URL for album art in 60x60px
+                          small:
+                            type: string
+                            description: URL for album art in 250x250px
+                          medium:
+                            type: string
+                            description: URL for album art in 500x500px
+                          large:
+                            type: string
+                            description: URL for album art in 1000x1000px
+
+  /api/v1/tracks/{track_id}/composer_avatar:
+    get:
+      tags:
+        - Composer avatar
+      summary: Get composer avatar for a track (in different image qualities)
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/TrackId"
+      responses:
+        "200":
+          description: Composer avatar images
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          icon:
+                            type: string
+                            description: URL for composer avatar in 60x60px
+                          small:
+                            type: string
+                            description: URL for composer avatar in 250x250px
+                          medium:
+                            type: string
+                            description: URL for composer avatar in 500x500px
+                          large:
+                            type: string
+                            description: URL for composer avatar in 1000x1000px
+
+  /api/v1/tracks/{track_id}/download:
+    get:
+      tags:
+        - Download
+      summary: Download a track
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/TrackId"
+        - name: version
+          description: 'Version of the track to be retrieved, can be "wav" or "mp3" ("wav" is default)'
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Zip file containing all track versions
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+  /api/v1/tracks/{track_version_id}/download_version:
+    get:
+      tags:
+        - Download
+      summary: Download a track version
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/TrackVersionId"
+        - name: version
+          description: 'Version of the track version to be retrieved, can be "wav" or "mp3" ("wav" is default)'
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Audio file
+          content:
+            application/wav:
+              schema:
+                type: string
+                format: binary
+  /api/v1/tracks/{track_version_id}/download_version_url:
+    get:
+      tags:
+        - Download
+      summary: Get track version download URL
+      description: |
+        Returns a temporary URL that can be used to download a specific track version.
+        The URL is valid for 10 minutes after generation.
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/TrackVersionId"
+        - name: version
+          description: 'Version of the track version to be retrieved, can be "wav" or "mp3" ("wav" is default)'
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: URL of a track version
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: The ID of the track version
+                        example: "123"
+                      type:
+                        type: string
+                        example: "track_version_download"
+                      attributes:
+                        type: object
+                        properties:
+                          version:
+                            type: string
+                            description: The format of the track version (wav or mp3)
+                            example: "wav"
+                          download_url:
+                            type: string
+                            description: URL for downloading the track version. This URL expires after 10 minutes.
+  /api/v1/tracks/cue_sheet_info:
+    get:
+      tags:
+        - Cue sheet info
+      summary: Get cue sheet info for a track version
+      parameters:
+        - name: Authorization
+          description: Your API token.
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: filename
+          description: The filename to search for. Can be a part of a filename, but search matches from the beginning of the filename.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          description: The page number to retrieve. Default is 1.
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: per_page
+          description: The number of items per page. Can be set up to 100. Default is 10.
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of cue sheet infos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          properties:
+                            track_id:
+                              type: integer
+                            track_version_id:
+                              type: integer
+                            filename:
+                              type: string
+                            cat_id:
+                              type: string
+                            album_number:
+                              type: string
+                            version_number:
+                              type: string
+                            track_title:
+                              type: string
+                            composer:
+                              type: string
+                            artist:
+                              type: string
+                            duration:
+                              type: string
+                            bpm:
+                              type: string
+                            start_key:
+                              type: string
+                            end_key:
+                              type: string
+                            isrc:
+                              type: string
+                            genre:
+                              type: string
+                            featured_instrument:
+                              type: string
+                            mood:
+                              type: string
+                            purpose:
+                              type: string
+                            track_year:
+                              type: string
+                            version_type:
+                              type: string
+                            instrumental:
+                              type: string
+                            collection:
+                              type: object
+                              properties:
+                                title:
+                                  type: string
+                                artwork:
+                                  type: string
+                                url:
+                                  type: string
+                                track_order:
+                                  type: string
+                            publisher:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                society:
+                                  type: string
+                                cae_ipi_number:
+                                  type: string
+                                share:
+                                  type: string
+                            url:
+                              type: string
+                            library_artwork:
+                              type: string
+                            composers:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  full_name:
+                                    type: string
+                                  first_name:
+                                    type: string
+                                  middle_name:
+                                    type: string
+                                  last_name:
+                                    type: string
+                                  society:
+                                    type: string
+                                  cae_ipi_number:
+                                    type: string
+                                  share:
+                                    type: string
+components:
+  parameters:
+    TrackId:
+      name: track_id
+      in: path
+      required: true
+      schema:
+        oneOf:
+          - $ref: "#/components/schemas/Id"
+    TrackVersionId:
+      name: track_version_id
+      in: path
+      required: true
+      schema:
+        oneOf:
+          - $ref: "#/components/schemas/Id"
+    CollectionSafeName:
+      name: collection_safename
+      in: path
+      required: true
+      schema:
+        oneOf:
+          - $ref: "#/components/schemas/SafeName"
+
+  schemas:
+    Id:
+      type: integer
+      minimum: 1
+      description: Numeric resource identifier.
+      example: 1
+    SafeName:
+      type: string
+      description: Safename of a collection
+      example: collection-name
