@@ -688,7 +688,6 @@ const isDirectRun =
   import.meta.url === `file://${process.argv[1]}`;
 
 if (isDirectRun) {
-  console.log('Melodies MCP Server starting...');
   main().catch(error => {
     console.error('Fatal error:', error);
     process.exit(1);
